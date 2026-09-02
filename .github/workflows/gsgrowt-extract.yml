@@ -1,0 +1,53 @@
+name: GSGROWT Extract ZIPs
+
+on:
+  push:
+    branches:
+      - gsgrowt-extract
+    paths:
+      - .github/workflows/gsgrowt-extract.yml
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout extraction branch
+        uses: actions/checkout@v4
+        with:
+          ref: gsgrowt-extract
+
+      - name: Validate and extract archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          HUB_ZIP="constello-dropship-hub-1.0.0-rc19-idempotent-import.zip"
+          EXT_ZIP="constello-dropship-hub-extension-1.14.3-rc1-idempotent-import.zip"
+
+          test -f "$HUB_ZIP"
+          test -f "$EXT_ZIP"
+          unzip -t "$HUB_ZIP"
+          unzip -t "$EXT_ZIP"
+
+          rm -rf extracted
+          mkdir -p extracted/hub-rc19 extracted/extension-1.14.3
+          unzip -q "$HUB_ZIP" -d extracted/hub-rc19
+          unzip -q "$EXT_ZIP" -d extracted/extension-1.14.3
+
+          find extracted -type f -print | sort > extracted/FILELIST.txt
+
+      - name: Commit extracted sources to temporary branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "GSGROWT Extractor"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add extracted
+          if git diff --cached --quiet; then
+            echo "No extraction changes to commit."
+            exit 0
+          fi
+          git commit -m "Extract RC19 and 1.14.3 sources for GSGROWT audit"
+          git push origin HEAD:gsgrowt-extract
