@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Adds a dedicated WooCommerce "Fournisseur" product-data tab.
  * Supplier/source metadata stays separate from native merchandising fields.
+ * The supplier product identity is immutable here because it is the idempotency key.
  */
 final class CDH_Supplier_Product_Data {
     public static function init() {
@@ -75,7 +76,7 @@ final class CDH_Supplier_Product_Data {
 
         echo '<div id="cdh_supplier_product_data" class="panel woocommerce_options_panel hidden">';
         echo '<div class="options_group">';
-        echo '<p style="padding:12px 12px 0;margin:0;color:#646970;">' . esc_html__( 'Source d’approvisionnement liée à ce produit. Ces informations sont séparées des attributs et variations WooCommerce.', 'constello-dropship-hub' ) . '</p>';
+        echo '<p style="padding:12px 12px 0;margin:0;color:#646970;">' . esc_html__( 'Source d’approvisionnement liée à ce produit. Les informations descriptives peuvent être corrigées, mais l’identité fournisseur utilisée pour éviter les doublons reste verrouillée.', 'constello-dropship-hub' ) . '</p>';
 
         woocommerce_wp_text_input( array(
             'id'          => '_cdh_supplier_store_name',
@@ -89,11 +90,11 @@ final class CDH_Supplier_Product_Data {
             'label'       => __( 'ID vendeur', 'constello-dropship-hub' ),
             'value'       => $seller_id,
         ) );
-        woocommerce_wp_text_input( array(
-            'id'          => '_cdh_supplier_product_id',
-            'label'       => __( 'ID produit fournisseur', 'constello-dropship-hub' ),
-            'value'       => $supplier_product_id,
-        ) );
+        self::readonly_row(
+            __( 'ID produit fournisseur', 'constello-dropship-hub' ),
+            $supplier_product_id,
+            '<span class="description">' . esc_html__( 'Identité verrouillée pour empêcher les doublons lors des reprises d’import.', 'constello-dropship-hub' ) . '</span>'
+        );
         woocommerce_wp_text_input( array(
             'id'          => '_cdh_supplier_url',
             'label'       => __( 'Lien produit', 'constello-dropship-hub' ),
@@ -156,7 +157,9 @@ final class CDH_Supplier_Product_Data {
         if ( ! current_user_can( 'edit_post', $post_id ) ) {
             return;
         }
-        $text_fields = array( '_cdh_supplier_store_name', '_cdh_supplier_seller_id', '_cdh_supplier_product_id' );
+        // The supplier product ID is deliberately excluded: supplier_key + supplier_product_id
+        // is the immutable business identity used by lookup and idempotent import replay.
+        $text_fields = array( '_cdh_supplier_store_name', '_cdh_supplier_seller_id' );
         foreach ( $text_fields as $key ) {
             if ( isset( $_POST[ $key ] ) ) {
                 update_post_meta( $post_id, $key, sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) );
