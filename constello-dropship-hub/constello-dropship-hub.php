@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Constello Dropship Hub
  * Description: Application Constello pour préparer et importer des produits AliExpress dans WooCommerce.
- * Version: 1.0.0-rc19-idempotent-import
+ * Version: 1.0.0-rc20-media-guard
  * Author: Constello
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'CDH_VERSION', '1.0.0-rc19-idempotent-import' );
+define( 'CDH_VERSION', '1.0.0-rc20-media-guard' );
 define( 'CDH_FILE', __FILE__ );
 define( 'CDH_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CDH_URL', plugin_dir_url( __FILE__ ) );
@@ -23,6 +23,7 @@ require_once CDH_DIR . 'includes/class-constello-admin-shell.php';
 require_once CDH_DIR . 'includes/class-cdh-import-aliexpress-status.php';
 require_once CDH_DIR . 'includes/class-cdh-catalog-settings.php';
 require_once CDH_DIR . 'includes/class-cdh-rest-api.php';
+require_once CDH_DIR . 'includes/class-cdh-temp-media-guard.php';
 require_once CDH_DIR . 'includes/class-cdh-supplier-product-data.php';
 require_once CDH_DIR . 'includes/class-cdh-product-extras.php';
 require_once CDH_DIR . 'includes/class-cdh-pricing-rules.php';
@@ -33,6 +34,7 @@ add_action( 'plugins_loaded', static function () {
     CDH_Import_AliExpress_Status::init();
     CDH_Catalog_Settings::init();
     CDH_REST_API::init();
+    CDH_Temp_Media_Guard::init();
     CDH_Supplier_Product_Data::init();
     CDH_Product_Extras::init();
     CDH_Pricing_Rules::init();
