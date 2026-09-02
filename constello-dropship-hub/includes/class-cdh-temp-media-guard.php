@@ -67,6 +67,18 @@ final class CDH_Temp_Media_Guard {
         return 'video:' . hash( 'sha256', $source_url );
     }
 
+    private static function is_temporary_unattached( $attachment_id ) {
+        if ( ! $attachment_id || 'attachment' !== get_post_type( $attachment_id ) ) {
+            return false;
+        }
+        if ( 0 !== (int) wp_get_post_parent_id( $attachment_id ) ) {
+            return false;
+        }
+        return '1' === (string) get_post_meta( $attachment_id, '_cdh_temp_import_media', true )
+            || '1' === (string) get_post_meta( $attachment_id, '_cdh_temp_import_video', true )
+            || '1' === (string) get_post_meta( $attachment_id, '_cdh_temp_import_document', true );
+    }
+
     private static function existing_attachment_id( $fingerprint ) {
         if ( '' === $fingerprint ) {
             return 0;
@@ -75,29 +87,32 @@ final class CDH_Temp_Media_Guard {
         $ids = get_posts( array(
             'post_type'              => 'attachment',
             'post_status'            => 'inherit',
-            'posts_per_page'         => 1,
+            'post_parent'            => 0,
+            'posts_per_page'         => 5,
             'fields'                 => 'ids',
             'orderby'                => 'ID',
             'order'                  => 'DESC',
             'no_found_rows'          => true,
             'suppress_filters'       => false,
-            'update_post_meta_cache' => false,
+            'update_post_meta_cache' => true,
             'update_post_term_cache' => false,
             'meta_key'               => self::FINGERPRINT_META,
             'meta_value'             => $fingerprint,
         ) );
 
-        $attachment_id = $ids ? absint( $ids[0] ) : 0;
-        if ( ! $attachment_id || 'attachment' !== get_post_type( $attachment_id ) ) {
-            return 0;
+        foreach ( (array) $ids as $attachment_id ) {
+            $attachment_id = absint( $attachment_id );
+            if ( self::is_temporary_unattached( $attachment_id ) && wp_get_attachment_url( $attachment_id ) ) {
+                return $attachment_id;
+            }
         }
-        if ( ! wp_get_attachment_url( $attachment_id ) ) {
-            return 0;
-        }
-        return $attachment_id;
+        return 0;
     }
 
     private static function response_for_attachment( $attachment_id ) {
+        // A retry may legitimately happen long after the first temporary upload. Refreshing
+        // this timestamp prevents the cleanup job from deleting a media currently being reused.
+        update_post_meta( $attachment_id, self::CREATED_AT_META, time() );
         $path = (string) get_attached_file( $attachment_id );
         return new WP_REST_Response( array(
             'media_id' => (int) $attachment_id,
@@ -136,7 +151,7 @@ final class CDH_Temp_Media_Guard {
         $data = $response->get_data();
         $attachment_id = absint( is_array( $data ) ? ( $data['media_id'] ?? 0 ) : 0 );
         $fingerprint   = self::fingerprint_for_request( $request );
-        if ( $attachment_id && $fingerprint && 'attachment' === get_post_type( $attachment_id ) ) {
+        if ( $attachment_id && $fingerprint && self::is_temporary_unattached( $attachment_id ) ) {
             update_post_meta( $attachment_id, self::FINGERPRINT_META, $fingerprint );
         }
         return $response;
@@ -168,13 +183,7 @@ final class CDH_Temp_Media_Guard {
 
         foreach ( (array) $ids as $attachment_id ) {
             $attachment_id = absint( $attachment_id );
-            if ( ! $attachment_id || 0 !== (int) wp_get_post_parent_id( $attachment_id ) ) {
-                continue;
-            }
-            $temporary = '1' === (string) get_post_meta( $attachment_id, '_cdh_temp_import_media', true )
-                || '1' === (string) get_post_meta( $attachment_id, '_cdh_temp_import_video', true )
-                || '1' === (string) get_post_meta( $attachment_id, '_cdh_temp_import_document', true );
-            if ( $temporary ) {
+            if ( self::is_temporary_unattached( $attachment_id ) ) {
                 wp_delete_attachment( $attachment_id, true );
             }
         }
