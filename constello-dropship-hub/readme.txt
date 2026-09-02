@@ -3,9 +3,21 @@ Contributors: constello
 Requires at least: 6.0
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 1.0.0-rc19-idempotent-import
+Stable tag: 1.0.0-rc20-media-guard
 
 Constello Dropship Hub prépare et importe des produits AliExpress dans WooCommerce.
+
+
+== 1.0.0-rc20-media-guard ==
+
+* Conserve l’idempotence RC19 sur l’identité fournisseur (`supplier_key` + `supplier_product_id`).
+* Déduplique les images, vidéos et documents encore temporaires lorsqu’une même ressource est téléversée plusieurs fois avant la création du produit.
+* Exécute la réutilisation des médias uniquement après le `permission_callback` REST : aucune déduplication ne contourne l’authentification API CDH.
+* Une reprise idempotente terminée (`200` + `idempotent_replay`) supprime immédiatement les médias temporaires inutiles envoyés par cette tentative.
+* Ne supprime jamais les médias d’une requête `409` encore en cours, afin de ne pas entrer en collision avec le premier import actif.
+* Planifie une purge horaire des médias CDH temporaires, non rattachés et abandonnés depuis plus de 24 heures.
+* L’ID produit fournisseur devient non modifiable dans l’onglet WooCommerce Fournisseur, car il fait partie de la clé anti-doublon.
+* Les délais de livraison fournisseur restent enregistrés en jours relatifs (`delivery_min_days` / `delivery_max_days`) ; les dates AliExpress ne servent que de snapshot d’observation.
 
 
 == 1.0.0-rc19-idempotent-import ==
@@ -78,36 +90,3 @@ Constello Dropship Hub prépare et importe des produits AliExpress dans WooComme
 * STAB-01 : stabilisation sans nouvelle fonction métier.
 * Suppression de l’ancienne méthode morte `sanitize_variation_pricing()` : le seul moteur actif reste `CDH_Pricing_Rules::build_import_pricing()`.
 * Durcissement de l’injection JSON de la règle tarifaire dans l’admin (`</script>` neutralisé explicitement).
-* Nouvelle suite de tests comportementaux du moteur de prix et du fail-closed SKU sous `tests/`.
-* Documentation de l’architecture SKU/tarification actuelle dans `docs/ARCHITECTURE-CURRENT.md`.
-
-== 1.0.0-rc11 ==
-* Tarification commerciale centralisée exclusivement côté WordPress.
-* L’extension transmet les coûts SKU AliExpress bruts ; elle ne calcule plus les prix de vente.
-* Constructeur de règle ouvert : coefficients, montants fixes, pourcentages, marge cible/minimale, minimum/maximum et prix psychologique.
-* Étapes activables/désactivables et réordonnables ; règle versionnée à chaque enregistrement.
-* Les variations mémorisent règle, version et trace de calcul pour audit.
-* Les modifications manuelles de prix sont marquées et ne sont jamais écrasées lors d’un recalcul automatique.
-
-== 1.0.0-rc10 ==
-* Fail-closed sur les produits variables : aucune variation WooCommerce n'est créée sans matrice SKU/prix AliExpress vérifiée.
-* Le produit cartésien théorique n'est plus accepté comme source de variations.
-
-== 1.0.0-rc9 ==
-* Prix fournisseur réels par SKU/combinaison conservés séparément pour chaque variation WooCommerce.
-
-== 1.0.0-rc7 ==
-* Onglet produit WooCommerce « Fournisseur ».
-* Séparation stricte entre attributs de variation et caractéristiques descriptives.
-
-== Changelog ==
-
-= 1.0.0-rc19-idempotent-import =
-* Import WooCommerce idempotent, réponse de reprise explicite, état d’import et verrou anti-concurrence par identité fournisseur.
-
-= 1.0.0-rc16-documents-size-guide =
-* Ajoute l’import sécurisé des documents PDF fournisseur AliExpress dans la médiathèque WordPress.
-* Conserve URL source, média WordPress et type de document sur le produit.
-* Ajoute le guide des tailles structuré et un onglet WooCommerce frontend responsive.
-* Ajoute les options d’extraction Documents et Guide des tailles aux profils Constello.
-* Conserve le moteur SKU/prix/stock RC15 sans synchronisation automatique du stock WooCommerce.
