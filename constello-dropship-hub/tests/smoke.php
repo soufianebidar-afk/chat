@@ -5,6 +5,7 @@ $required = array(
     'includes/class-constello-admin-shell.php',
     'includes/class-cdh-admin-shell.php',
     'includes/class-cdh-rest-api.php',
+    'includes/class-cdh-temp-media-guard.php',
     'includes/class-cdh-catalog-settings.php',
     'includes/class-cdh-supplier-product-data.php',
     'includes/class-cdh-product-extras.php',
@@ -21,6 +22,7 @@ $app = file_get_contents( $root . '/includes/class-cdh-admin-shell.php' );
 $shell = file_get_contents( $root . '/includes/class-constello-admin-shell.php' );
 $status = file_get_contents( $root . '/includes/class-cdh-import-aliexpress-status.php' );
 $api = file_get_contents( $root . '/includes/class-cdh-rest-api.php' );
+$guard = file_get_contents( $root . '/includes/class-cdh-temp-media-guard.php' );
 $supplier = file_get_contents( $root . '/includes/class-cdh-supplier-product-data.php' );
 $extras = file_get_contents( $root . '/includes/class-cdh-product-extras.php' );
 $pricing = file_get_contents( $root . '/includes/class-cdh-pricing-product-data.php' );
@@ -30,11 +32,12 @@ $css = file_get_contents( $root . '/assets/constello-shell.css' );
 $import_start = strpos( $api, 'public static function import_product' );
 $import_identity = false !== $import_start ? strpos( $api, '$supplier_product_id = sanitize_text_field', $import_start ) : false;
 $import_video_validation = false !== $import_start ? strpos( $api, 'cdh_video_media_required', $import_start ) : false;
-$identity_persist = false !== $import_start ? strpos( $api, "update_post_meta( $post_id, '_cdh_supplier_key'", $import_start ) : false;
+$identity_persist = false !== $import_start ? strpos( $api, "update_post_meta( \$post_id, '_cdh_supplier_key'", $import_start ) : false;
 $product_enrichment = false !== $import_start ? strpos( $api, 'new WC_Product_Variable', $import_start ) : false;
 $checks = array(
     'plugin name' => strpos( $main, 'Plugin Name: Constello Dropship Hub' ) !== false,
-    'rc19 idempotent import version' => strpos( $main, '1.0.0-rc19-idempotent-import' ) !== false,
+    'rc20 media guard version' => strpos( $main, '1.0.0-rc20-media-guard' ) !== false,
+    'rc20 media guard loaded' => strpos( $main, 'class-cdh-temp-media-guard.php' ) !== false && strpos( $main, 'CDH_Temp_Media_Guard::init()' ) !== false,
     'pricing engine loaded' => strpos( $main, 'class-cdh-pricing-rules.php' ) !== false && strpos( $main, 'CDH_Pricing_Rules::init()' ) !== false,
     'RC129 shell' => strpos( $shell, "const PARENT_SLUG = 'constello-app'" ) !== false && strpos( $css, 'background-color:currentColor' ) !== false,
     'registry app' => strpos( $app, "add_filter( 'constello_admin_apps'" ) !== false && strpos( $app, 'Constello_Admin_Shell::app_header' ) !== false,
@@ -69,17 +72,20 @@ $checks = array(
     'Import AliExpress status' => strpos( $status, "const STATUS = 'cdh_aliexpress'" ) !== false,
     'currency authority' => strpos( $api, 'cdh_currency_mismatch' ) !== false,
     'supplier product tab' => strpos( $supplier, "'cdh_supplier'" ) !== false && strpos( $supplier, 'Fournisseur' ) !== false,
+    'supplier product identity immutable' => strpos( $supplier, 'Identité verrouillée pour empêcher les doublons' ) !== false && strpos( $supplier, "'id'          => '_cdh_supplier_product_id'" ) === false,
     'separate descriptive attrs' => strpos( $api, '$attribute->set_variation( false )' ) !== false && strpos( $api, '$attribute->set_variation( true )' ) !== false,
     'obsolete pricing sanitizer removed' => strpos( $api, 'sanitize_variation_pricing' ) === false,
     'inline pricing JSON hardened' => strpos( $app, "str_replace( '</'" ) !== false && strpos( $app, "<\\\\/" ) !== false,
     'rc18 size guide range sanitizer' => strpos( $api, "'value_type' => \$value_type" ) !== false && strpos( $api, "'supplier_min' => \$supplier_min" ) !== false && strpos( $api, "'unit_conflict' => ! empty" ) !== false,
     'rc18 size guide frontend range rendering' => strpos( $extras, "'range' === (string)" ) !== false && strpos( $extras, "Tour de taille" ) !== false,
     'rc19 supplier identity required before media validation' => false !== $import_identity && false !== $import_video_validation && $import_identity < $import_video_validation,
-    'rc19 idempotent replay response' => strpos( $api, 'idempotent_replay' ) !== false && strpos( $api, "'import_action'       => 'existing'" ) !== false,
-    'rc19 concurrent import lock' => strpos( $api, 'IMPORT_LOCK_PREFIX' ) !== false && strpos( $api, 'add_option( $option_name' ) !== false && strpos( $api, 'cdh_import_in_progress' ) !== false,
+    'rc19 idempotent replay response retained' => strpos( $api, 'idempotent_replay' ) !== false && strpos( $api, "'import_action'       => 'existing'" ) !== false,
+    'rc19 concurrent import lock retained' => strpos( $api, 'IMPORT_LOCK_PREFIX' ) !== false && strpos( $api, 'add_option( $option_name' ) !== false && strpos( $api, 'cdh_import_in_progress' ) !== false,
     'rc19 identity persisted before product enrichment' => false !== $identity_persist && false !== $product_enrichment && $identity_persist < $product_enrichment,
     'rc19 duplicate supplier identity fails closed' => strpos( $api, 'cdh_duplicate_supplier_identity' ) !== false,
     'rc19 incomplete import fails closed' => strpos( $api, "'_cdh_import_state', 'processing'" ) !== false && strpos( $api, "'_cdh_import_state', 'complete'" ) !== false && strpos( $api, 'cdh_incomplete_import' ) !== false,
+    'rc20 replay media cleanup' => strpos( $guard, 'cleanup_idempotent_replay_media' ) !== false && strpos( $guard, 'discarded_temp_media' ) !== false,
+    'rc20 abandoned media cleanup' => strpos( $guard, 'cleanup_abandoned_media' ) !== false && strpos( $guard, 'DAY_IN_SECONDS' ) !== false,
 );
 foreach ( $checks as $label => $ok ) { echo ( $ok ? 'PASS' : 'FAIL' ) . " | $label\n"; if ( ! $ok ) exit( 1 ); }
 
