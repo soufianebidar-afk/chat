@@ -1,0 +1,91 @@
+/* Constello Dropship Hub — application layer only. Shared shell/theme comes from RC129. */
+body.ct-app-screen .cdh-metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 18px}
+body.ct-app-screen .cdh-metric,body.ct-app-screen .cdh-card{background:var(--ct-surface);color:var(--ct-text);border:0;border-radius:12px;box-shadow:none}
+body.ct-app-screen .cdh-metric{padding:18px;display:flex;flex-direction:column;gap:6px}
+body.ct-app-screen .cdh-metric>span{font-size:12px;font-weight:700;color:var(--ct-text-muted)}
+body.ct-app-screen .cdh-metric>strong{font-size:26px;line-height:1.1;color:var(--ct-text)}
+body.ct-app-screen .cdh-metric>small{font-size:12px;color:var(--ct-text-subtle)}
+body.ct-app-screen .cdh-content-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+body.ct-app-screen .cdh-card{padding:20px;margin:0 0 16px}
+body.ct-app-screen .cdh-card p{color:var(--ct-text-muted);font-size:13px;line-height:1.55}
+body.ct-app-screen .cdh-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:10px}
+body.ct-app-screen .cdh-card h2{margin:2px 0 0;font-size:18px;line-height:1.3;color:var(--ct-text)}
+body.ct-app-screen .cdh-card-eyebrow{display:block;font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--ct-text-subtle)}
+body.ct-app-screen .cdh-count{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:28px;padding:0 8px;border-radius:999px;background:var(--ct-surface-alt);color:var(--ct-text);font-weight:800}
+body.ct-app-screen .cdh-action{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 12px;border:0;border-radius:8px;background:var(--ct-surface-alt);color:var(--ct-text);font-weight:700;text-decoration:none;cursor:pointer}
+body.ct-app-screen .cdh-action:hover{color:var(--ct-text);background:color-mix(in srgb,var(--ct-surface-alt) 75%,var(--ct-accent) 25%)}
+body.ct-app-screen .cdh-action:focus-visible{outline:2px solid var(--ct-accent);outline-offset:2px}
+body.ct-app-screen .cdh-action-primary{background:var(--ct-accent);color:#071014}
+body.ct-app-screen .cdh-action-primary:hover{background:var(--ct-accent-hover);color:#071014}
+body.ct-app-screen .cdh-steps{list-style:none;margin:16px 0 20px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+body.ct-app-screen .cdh-steps li{display:flex;gap:10px;padding:14px;border-radius:10px;background:var(--ct-surface-alt)}
+body.ct-app-screen .cdh-steps li>b{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 24px;border-radius:999px;background:var(--ct-accent);color:#071014;font-size:11px}
+body.ct-app-screen .cdh-steps span{display:flex;flex-direction:column;gap:4px;min-width:0}
+body.ct-app-screen .cdh-steps strong{color:var(--ct-text);font-size:13px}
+body.ct-app-screen .cdh-steps small{color:var(--ct-text-muted);line-height:1.4}
+body.ct-app-screen .cdh-endpoints{display:grid;gap:8px;margin:0 0 18px}
+body.ct-app-screen .cdh-endpoints>div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;align-items:center}
+body.ct-app-screen .cdh-endpoints span{color:var(--ct-text-muted);font-size:12px;font-weight:700}
+body.ct-app-screen .cdh-endpoints code{display:block;overflow:hidden;text-overflow:ellipsis;padding:7px 9px;border-radius:7px;background:var(--ct-surface-alt);color:var(--ct-text)}
+body.ct-app-screen .cdh-product-list{display:grid;gap:2px;margin-top:10px}
+body.ct-app-screen .cdh-product-row{display:grid;grid-template-columns:58px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 4px;border-top:1px solid var(--ct-border)}
+body.ct-app-screen .cdh-product-row:first-child{border-top:0}
+body.ct-app-screen .cdh-product-thumb{width:58px;height:58px;border-radius:9px;overflow:hidden;background:var(--ct-surface-alt);display:flex;align-items:center;justify-content:center;color:var(--ct-text-subtle)}
+body.ct-app-screen .cdh-product-thumb img{width:100%;height:100%;object-fit:cover}
+body.ct-app-screen .cdh-product-copy{min-width:0;display:flex;flex-direction:column;gap:4px}
+body.ct-app-screen .cdh-product-copy strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ct-text)}
+body.ct-app-screen .cdh-product-copy span{font-size:12px;color:var(--ct-text-muted)}
+body.ct-app-screen .cdh-product-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+body.ct-app-screen .cdh-empty{padding:30px;text-align:center;background:var(--ct-surface-alt);border-radius:10px;color:var(--ct-text-muted)}
+body.ct-app-screen .cdh-empty strong{display:block;color:var(--ct-text);margin-bottom:5px}
+body.ct-app-screen .cdh-key-box{display:grid;gap:8px;padding:14px;margin:14px 0;border-radius:10px;background:var(--ct-warning-bg)}
+body.ct-app-screen .cdh-key-box code{padding:8px;border-radius:7px;background:var(--ct-surface-alt);overflow-wrap:anywhere;color:var(--ct-text)}
+body.ct-app-screen .cdh-key-box small{color:var(--ct-text-muted)}
+body.ct-app-screen .cdh-state{display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;font-weight:700}
+body.ct-app-screen .cdh-state.is-ok{background:var(--ct-success-bg);color:var(--ct-success)}
+body.ct-app-screen .cdh-state.is-warn{background:var(--ct-warning-bg);color:var(--ct-warning)}
+body.ct-app-screen .cdh-defs{margin:8px 0 14px}
+body.ct-app-screen .cdh-defs>div{display:grid;grid-template-columns:130px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--ct-border)}
+body.ct-app-screen .cdh-defs>div:last-child{border-bottom:0}
+body.ct-app-screen .cdh-defs dt{color:var(--ct-text-muted)}
+body.ct-app-screen .cdh-defs dd{margin:0;color:var(--ct-text);overflow-wrap:anywhere}
+body.ct-app-screen .cdh-note{margin-top:12px!important;font-size:12px!important}
+@media(max-width:900px){body.ct-app-screen .cdh-metric-grid,body.ct-app-screen .cdh-content-grid,body.ct-app-screen .cdh-steps{grid-template-columns:1fr}body.ct-app-screen .cdh-product-row{grid-template-columns:52px minmax(0,1fr)}body.ct-app-screen .cdh-product-actions{grid-column:1/-1;justify-content:flex-start}body.ct-app-screen .cdh-endpoints>div{grid-template-columns:1fr}}
+body.ct-app-screen .cdh-pricing-settings{margin-top:2px}
+body.ct-app-screen .cdh-pricing-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 18px;color:var(--ct-text-muted);font-size:12px}
+body.ct-app-screen .cdh-pricing-flow span{padding:7px 10px;border-radius:999px;background:var(--ct-surface-alt);color:var(--ct-text)}
+body.ct-app-screen .cdh-pricing-flow b{color:var(--ct-accent)}
+body.ct-app-screen .cdh-pricing-toolbar{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:12px}
+body.ct-app-screen .cdh-pricing-toolbar label{display:grid;gap:6px;min-width:min(420px,100%);color:var(--ct-text-muted);font-size:12px;font-weight:700}
+body.ct-app-screen .cdh-pricing-toolbar input,body.ct-app-screen .cdh-pricing-step input,body.ct-app-screen .cdh-pricing-step select,body.ct-app-screen .cdh-pricing-preview-box input{min-height:38px;border:1px solid var(--ct-border);border-radius:8px;background:var(--ct-surface-alt);color:var(--ct-text);box-shadow:none}
+body.ct-app-screen .cdh-pricing-toolbar input:focus,body.ct-app-screen .cdh-pricing-step input:focus,body.ct-app-screen .cdh-pricing-step select:focus,body.ct-app-screen .cdh-pricing-preview-box input:focus{border-color:var(--ct-accent);box-shadow:0 0 0 1px var(--ct-accent);outline:0}
+body.ct-app-screen .cdh-pricing-steps{display:grid;gap:8px;margin:0 0 16px}
+body.ct-app-screen .cdh-pricing-step{display:grid;grid-template-columns:30px 32px minmax(190px,.7fr) minmax(240px,1fr) auto;gap:8px;align-items:center;padding:9px;border-radius:10px;background:var(--ct-surface-alt);border:1px solid var(--ct-border)}
+body.ct-app-screen .cdh-pricing-step.is-disabled{opacity:.55}
+body.ct-app-screen .cdh-step-enabled{display:flex;align-items:center;justify-content:center}
+body.ct-app-screen .cdh-step-index{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;background:var(--ct-surface);font-size:11px;font-weight:800;color:var(--ct-text-muted)}
+body.ct-app-screen .cdh-step-value{display:flex;align-items:center;gap:7px;min-width:0}
+body.ct-app-screen .cdh-step-value input{width:140px}
+body.ct-app-screen .cdh-step-value select{min-width:130px}
+body.ct-app-screen .cdh-step-controls{display:flex;gap:4px}
+body.ct-app-screen .cdh-step-controls button{width:32px;height:32px;border:1px solid var(--ct-border);border-radius:7px;background:var(--ct-surface);color:var(--ct-text);cursor:pointer}
+body.ct-app-screen .cdh-step-controls button:hover{border-color:var(--ct-accent);color:var(--ct-accent)}
+body.ct-app-screen .cdh-pricing-preview-box{display:grid;grid-template-columns:minmax(240px,1fr) minmax(180px,.6fr) minmax(240px,.9fr);gap:16px;align-items:center;padding:16px;border-radius:11px;background:var(--ct-surface-alt);border:1px solid var(--ct-border)}
+body.ct-app-screen .cdh-pricing-preview-box h3{margin:2px 0 0;color:var(--ct-text);font-size:16px}
+body.ct-app-screen .cdh-pricing-preview-box p{margin:4px 0 0!important}
+body.ct-app-screen .cdh-pricing-preview-box label{display:grid;gap:6px;color:var(--ct-text-muted);font-size:12px;font-weight:700}
+body.ct-app-screen .cdh-money-input{display:flex;align-items:center;gap:7px}
+body.ct-app-screen .cdh-money-input input{width:130px}
+body.ct-app-screen .cdh-pricing-result{display:flex;flex-direction:column;gap:3px;min-width:0}
+body.ct-app-screen .cdh-pricing-result small{color:var(--ct-text-muted)}
+body.ct-app-screen .cdh-pricing-result strong{font-size:22px;color:var(--ct-accent)}
+body.ct-app-screen .cdh-pricing-result span{font-size:10px;color:var(--ct-text-subtle);overflow-wrap:anywhere}
+body.ct-app-screen .cdh-pricing-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
+body.ct-app-screen .cdh-pricing-actions>span{font-size:11px;color:var(--ct-text-muted)}
+@media(max-width:900px){body.ct-app-screen .cdh-pricing-toolbar{align-items:stretch;flex-direction:column}body.ct-app-screen .cdh-pricing-step{grid-template-columns:30px 32px minmax(0,1fr) auto}body.ct-app-screen .cdh-step-value{grid-column:3/-1;flex-wrap:wrap}body.ct-app-screen .cdh-pricing-preview-box{grid-template-columns:1fr}}
+
+/* RC13 — extraction profiles + catalog mappings */
+.cdh-extraction-presets{display:flex;align-items:end;gap:18px;flex-wrap:wrap;margin:16px 0}.cdh-extraction-presets label{display:grid;gap:6px;min-width:220px}.cdh-extraction-presets select{min-height:40px}.cdh-extraction-presets p{margin:0;color:var(--ct-text-muted,#667085)}
+.cdh-extraction-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}.cdh-extraction-item{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--ct-border,#dfe3e8);border-radius:10px;background:var(--ct-surface-alt,#f8fafc)}.cdh-extraction-item input{margin-top:3px}.cdh-extraction-item span{display:grid;gap:3px}.cdh-extraction-item small{color:var(--ct-text-muted,#667085)}.cdh-technical-lock{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--ct-surface-alt,#f8fafc);border:1px dashed var(--ct-border,#dfe3e8);font-size:12px}.cdh-technical-lock span{color:var(--ct-text-muted,#667085)}
+.cdh-mapping-table{display:grid;border:1px solid var(--ct-border,#dfe3e8);border-radius:10px;overflow:hidden;margin:14px 0}.cdh-mapping-head,.cdh-mapping-row{display:grid;grid-template-columns:1.2fr 1.2fr .5fr;gap:14px;align-items:center;padding:10px 12px}.cdh-mapping-head{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ct-text-muted,#667085);background:var(--ct-surface-alt,#f8fafc)}.cdh-mapping-row{border-top:1px solid var(--ct-border,#dfe3e8)}.cdh-mapping-row span{display:grid;gap:2px}.cdh-mapping-row small{color:var(--ct-text-muted,#667085)}
+@media(max-width:900px){.cdh-extraction-grid{grid-template-columns:1fr 1fr}.cdh-mapping-head,.cdh-mapping-row{grid-template-columns:1fr 1fr}.cdh-mapping-head span:last-child,.cdh-mapping-row>span:last-child{display:none}}@media(max-width:620px){.cdh-extraction-grid{grid-template-columns:1fr}}
