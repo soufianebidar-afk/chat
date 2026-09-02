@@ -1,0 +1,26 @@
+const fs = require('fs');
+const path = require('path');
+function assert(cond, label) { if (!cond) throw new Error(label); console.log('PASS | ' + label); }
+const html = fs.readFileSync(path.join(__dirname, '..', 'editor.html'), 'utf8');
+const js = fs.readFileSync(path.join(__dirname, '..', 'editor.js'), 'utf8');
+assert(html.includes('data-desc-tab="edit"'), 'description exposes Preview/Edit/HTML tabs');
+assert(html.includes('class="switch-track"'), 'description inclusion uses Constello switch control');
+assert(html.includes('id="description-editor"') && html.includes('contenteditable="true"'), 'description has visual editor');
+assert(html.includes('id="description-fullscreen"'), 'description workspace supports fullscreen');
+assert((html.match(/data-desc-resize-handle=/g) || []).length === 3, 'Preview/Edit/HTML each have a resize handle');
+assert(html.includes('data-desc-resize="preview"') && html.includes('data-desc-resize="edit"') && html.includes('data-desc-resize="html"'), 'all description panes are independently resizable');
+assert(html.includes('sandbox="allow-same-origin"'), 'preview remains sandboxed while allowing render verification without scripts');
+assert(html.includes('id="description-restore"'), 'description can restore supplier original');
+assert(html.includes('id="description-counts"'), 'description shows content statistics');
+assert(html.includes('id="description-diagnostics-grid"'), 'description source diagnostics remain available');
+assert(js.includes('sanitizeDescriptionForEditor'), 'visual editor sanitizes HTML before use');
+assert(js.includes("script,style,template,iframe,object,embed,form"), 'visual editor strips active/unsafe elements');
+assert(js.includes('descriptionHtml: sanitizeDescriptionForEditor'), 'import payload uses sanitized description');
+assert(js.includes('descriptionPreviewDocument'), 'preview builds responsive wrapper document');
+assert(js.includes('renderDescriptionPreviewFrame'), 'preview has reliable iframe render path with verification');
+assert(js.includes('writePreviewDocumentFallback'), 'preview has a fallback if srcdoc renders blank');
+assert(js.includes('bindDescriptionResizers') && js.includes('localStorage.setItem'), 'description pane sizes are draggable and persisted');
+assert(js.includes('toggleDescriptionFullscreen'), 'description supports fullscreen mode');
+assert(html.includes('position:sticky') || html.includes('desc-editor-toolbar'), 'visual editor toolbar is available for sticky behavior');
+assert(js.includes('max-width:100%!important') && js.includes('overflow-x:hidden'), 'preview prevents horizontal overflow');
+console.log('PASS | description UX resize tests');
