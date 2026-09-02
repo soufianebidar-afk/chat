@@ -21,8 +21,9 @@ final class CDH_Temp_Media_Guard {
     );
 
     public static function init() {
-        add_filter( 'rest_pre_dispatch', array( __CLASS__, 'reuse_existing_media' ), 9, 3 );
-        add_filter( 'rest_post_dispatch', array( __CLASS__, 'remember_media_fingerprint' ), 10, 3 );
+        // rest_dispatch_request runs only after the endpoint permission_callback succeeded.
+        add_filter( 'rest_dispatch_request', array( __CLASS__, 'reuse_existing_media' ), 9, 4 );
+        add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'remember_media_fingerprint' ), 10, 3 );
         add_action( 'init', array( __CLASS__, 'schedule_cleanup' ) );
         add_action( self::CLEANUP_HOOK, array( __CLASS__, 'cleanup_abandoned_media' ) );
     }
@@ -107,24 +108,24 @@ final class CDH_Temp_Media_Guard {
         ), 201 );
     }
 
-    public static function reuse_existing_media( $result, WP_REST_Server $server, WP_REST_Request $request ) {
-        if ( null !== $result ) {
-            return $result;
+    public static function reuse_existing_media( $dispatch_result, WP_REST_Request $request, $route, $handler ) {
+        if ( null !== $dispatch_result ) {
+            return $dispatch_result;
         }
         if ( ! isset( self::$routes[ (string) $request->get_route() ] ) ) {
-            return $result;
+            return $dispatch_result;
         }
 
         $fingerprint = self::fingerprint_for_request( $request );
         $attachment_id = self::existing_attachment_id( $fingerprint );
         if ( ! $attachment_id ) {
-            return $result;
+            return $dispatch_result;
         }
 
         return self::response_for_attachment( $attachment_id );
     }
 
-    public static function remember_media_fingerprint( $response, WP_REST_Server $server, WP_REST_Request $request ) {
+    public static function remember_media_fingerprint( $response, $handler, WP_REST_Request $request ) {
         if ( ! isset( self::$routes[ (string) $request->get_route() ] ) ) {
             return $response;
         }
