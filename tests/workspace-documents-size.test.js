@@ -1,0 +1,30 @@
+const fs = require('fs');
+const path = require('path');
+function assert(cond,label){if(!cond)throw new Error(label);console.log('PASS | '+label)}
+const editor=fs.readFileSync(path.join(__dirname,'..','editor.js'),'utf8');
+const html=fs.readFileSync(path.join(__dirname,'..','editor.html'),'utf8');
+const content=fs.readFileSync(path.join(__dirname,'..','content-script.js'),'utf8');
+const background=fs.readFileSync(path.join(__dirname,'..','background.js'),'utf8');
+const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,'..','manifest.json'),'utf8'));
+assert(manifest.version==='1.14.3','extension version is 1.14.3');
+assert(html.includes('workspace-nav-chip') && html.includes('draggable="true"') && editor.includes('WORKSPACE_ORDER_KEY') && editor.includes('saveWorkspaceOrder'), 'workspace navigation chips are draggable and persisted');
+assert(editor.includes('applyWorkspaceOrder') && editor.includes('data-workspace-section'), 'workspace chip order is synchronized with section order');
+assert(html.includes('Réinitialiser l’ordre') && editor.includes('resetWorkspaceOrder'), 'workspace order can be reset');
+assert(editor.includes('variant-summary-status') && html.includes('.variant-value-card') && editor.includes('Ne pas importer'), 'variant UI is compact and exposes explicit import actions');
+assert(editor.includes('Convertir en caractéristique') && editor.includes('convertSingleValueGroupToCharacteristic'), 'single-value variation can be converted into a characteristic');
+assert(content.includes('extractSupplierDocuments') && content.includes('/\\.pdf(?:[?#]|$)/i'), 'supplier PDF documents are extracted structurally');
+assert(html.includes('documents-card') && editor.includes('renderDocuments') && background.includes('CDH_IMPORT_DOCUMENT'), 'documents have editor UI and WordPress import relay');
+assert(content.includes('extractSizeGuide') && content.includes('data-sku-col') && content.includes('readSizeMeasurements'), 'size guide extraction uses structured SKU identifiers and measurements');
+assert(editor.includes('renderSizeGuideForGroup') && editor.includes('size_guide'), 'size guide is rendered with the matching variation group and sent in payload');
+assert(editor.includes('importEnabled !== false'), 'supplier-unavailable values can be excluded without inventing SKU rows');
+
+assert(content.includes('extractCurrentShipping') && content.includes('parseDeliveryWindow'), 'supplier shipping fee and relative delivery window are extracted');
+assert(editor.includes('size-guide-measure-input') && editor.includes('manual_updated_at') && editor.includes('supplier_value'), 'size guide supports manual measurements with supplier provenance');
+assert(html.includes('check-shipping') && editor.includes('Coût total fournisseur (réf.)'), 'shipping and reference landed cost are visible in editor UI');
+assert(content.includes('parseSizeMeasurement') && content.includes('supplier_min') && content.includes('unit_conflict'), 'size guide extraction supports ranges, per-measurement units and supplier conflicts');
+assert(editor.includes('parseManualSizeMeasurement') && editor.includes('value_type') && editor.includes('measurement.unit_conflict'), 'size guide editor supports manual single/range values and unit conflict warning');
+assert(editor.includes("return 'Tour de taille'"), 'size guide disambiguates variation size from waist measurement');
+assert(editor.includes('size-guide-incomplete') && editor.includes('à compléter'), 'size guide exposes an actionable incomplete-size count');
+assert(editor.includes('supplierVerificationLabel') && html.includes('pricing-observation'), 'shipping UI exposes supplier observation freshness');
+assert(editor.includes('supplierCostLabel') && editor.includes('Coûts fournisseur'), 'pricing UI exposes real supplier cost range');
+assert(editor.includes('commonSupplierObservation') && editor.includes('Dernier relevé'), 'stock UI moves a shared SKU observation into the detail header');

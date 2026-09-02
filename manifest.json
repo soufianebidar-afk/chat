@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "Constello Dropship Hub — Import AliExpress",
+  "version": "1.14.3",
+  "description": "Prépare les produits AliExpress et gère les reprises d’import WooCommerce sans créer de doublon.",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Constello Dropship Hub — Import AliExpress"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.aliexpress.com/item/*"
+      ],
+      "js": [
+        "page-sku-bridge.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "*://*.aliexpress.com/item/*"
+      ],
+      "js": [
+        "content-script.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://*.aliexpress.com/item/*"
+      ],
+      "js": [
+        "banner.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": [
+    "https://*/*"
+  ]
+}
