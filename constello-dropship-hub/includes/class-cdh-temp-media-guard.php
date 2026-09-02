@@ -4,8 +4,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Prevents repeated extension retries from creating duplicate temporary media
- * and removes abandoned temporary attachments after a safety delay.
+ * Prevents repeated extension retries from creating duplicate temporary media,
+ * discards media uploaded by an idempotent replay, and removes abandoned
+ * temporary attachments after a safety delay.
  */
 final class CDH_Temp_Media_Guard {
     const FINGERPRINT_META = '_cdh_import_media_fingerprint_v1';
@@ -24,6 +25,9 @@ final class CDH_Temp_Media_Guard {
         // rest_dispatch_request runs only after the endpoint permission_callback succeeded.
         add_filter( 'rest_dispatch_request', array( __CLASS__, 'reuse_existing_media' ), 9, 4 );
         add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'remember_media_fingerprint' ), 10, 3 );
+        // At this stage the /import response is normalized and the original request payload is
+        // still available. A completed idempotent replay can safely discard its unused temp media.
+        add_filter( 'rest_post_dispatch', array( __CLASS__, 'cleanup_idempotent_replay_media' ), 20, 3 );
         add_action( 'init', array( __CLASS__, 'schedule_cleanup' ) );
         add_action( self::CLEANUP_HOOK, array( __CLASS__, 'cleanup_abandoned_media' ) );
     }
@@ -153,6 +157,68 @@ final class CDH_Temp_Media_Guard {
         $fingerprint   = self::fingerprint_for_request( $request );
         if ( $attachment_id && $fingerprint && self::is_temporary_unattached( $attachment_id ) ) {
             update_post_meta( $attachment_id, self::FINGERPRINT_META, $fingerprint );
+        }
+        return $response;
+    }
+
+    private static function collect_request_media_ids( $value, &$ids, $key = '' ) {
+        if ( 'image_media_ids' === $key && is_array( $value ) ) {
+            foreach ( $value as $media_id ) {
+                $media_id = absint( $media_id );
+                if ( $media_id ) {
+                    $ids[ $media_id ] = true;
+                }
+            }
+            return;
+        }
+
+        if ( in_array( $key, array( 'media_id', 'image_media_id' ), true ) && ! is_array( $value ) ) {
+            $media_id = absint( $value );
+            if ( $media_id ) {
+                $ids[ $media_id ] = true;
+            }
+            return;
+        }
+
+        if ( ! is_array( $value ) ) {
+            return;
+        }
+        foreach ( $value as $child_key => $child_value ) {
+            self::collect_request_media_ids( $child_value, $ids, is_string( $child_key ) ? $child_key : '' );
+        }
+    }
+
+    public static function cleanup_idempotent_replay_media( $response, WP_REST_Server $server, WP_REST_Request $request ) {
+        if ( '/cdh/v1/import' !== (string) $request->get_route() || ! $response instanceof WP_REST_Response ) {
+            return $response;
+        }
+
+        $data = $response->get_data();
+        if ( 200 !== $response->get_status() || ! is_array( $data ) || true !== ( $data['idempotent_replay'] ?? false ) ) {
+            return $response;
+        }
+
+        // Do not clean 409/in-progress requests here: a concurrent first import may still be
+        // consuming the same temp IDs. A 200 idempotent replay means the existing product is
+        // complete and these request-scoped temporary attachments are definitively unused.
+        $payload = $request->get_json_params();
+        if ( ! is_array( $payload ) ) {
+            return $response;
+        }
+
+        $ids = array();
+        self::collect_request_media_ids( $payload, $ids );
+        $deleted = 0;
+        foreach ( array_keys( $ids ) as $attachment_id ) {
+            $attachment_id = absint( $attachment_id );
+            if ( self::is_temporary_unattached( $attachment_id ) && wp_delete_attachment( $attachment_id, true ) ) {
+                $deleted++;
+            }
+        }
+
+        if ( $deleted ) {
+            $data['discarded_temp_media'] = $deleted;
+            $response->set_data( $data );
         }
         return $response;
     }
