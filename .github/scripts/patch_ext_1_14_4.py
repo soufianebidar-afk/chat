@@ -91,10 +91,10 @@ manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\
 
 version_test = Path('tests/workspace-documents-size.test.js')
 text = version_test.read_text(encoding='utf-8')
-if "extension version is 1.14.3" not in text or "manifest.version === '1.14.3'" not in text:
+if "extension version is 1.14.3" not in text or "manifest.version==='1.14.3'" not in text:
     raise SystemExit('1.14.3 version test marker not found')
 text = text.replace("extension version is 1.14.3", "extension version is 1.14.4")
-text = text.replace("manifest.version === '1.14.3'", "manifest.version === '1.14.4'")
+text = text.replace("manifest.version==='1.14.3'", "manifest.version==='1.14.4'")
 version_test.write_text(text, encoding='utf-8')
 
 preflight_test = Path('tests/import-preflight.test.js')
