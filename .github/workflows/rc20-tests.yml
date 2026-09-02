@@ -1,0 +1,20 @@
+name: RC20 Tests
+
+on:
+  push:
+    branches:
+      - gsgrowt-rc20-preflight-cleanup
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extension tests
+        run: node tests/run-all.js
+      - name: Hub PHP syntax
+        run: |
+          find constello-dropship-hub -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Hub stabilization tests
+        run: php constello-dropship-hub/tests/run.php
